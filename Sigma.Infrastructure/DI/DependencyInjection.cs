@@ -5,6 +5,7 @@ using Sigma.Application.Interfaces.Services;
 using Sigma.Application.UseCases.Utilities;
 using Sigma.Infrastructure.Persistence;
 using Sigma.Infrastructure.Repositories;
+using Sigma.Infrastructure.Repositories.Utilities;
 using Sigma.Infrastructure.Security;
 
 namespace Sigma.Infrastructure.DI   // ✅ FIXED
@@ -20,12 +21,17 @@ namespace Sigma.Infrastructure.DI   // ✅ FIXED
 
             // Repositories
             services.AddScoped<IAuthUserRepository, AuthUserRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IMenuRepository, MenuRepository>();
+
 
             // Security
             services.AddScoped<IJwtTokenService, JwtTokenService>();
 
             // UseCases
             services.AddScoped<LoginUserUseCase>();
+
+
 
             return services;
         }
