@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="Sigma.API/Sigma.API.csproj" />
+  <Project Path="Sigma.Application/Sigma.Application.csproj" />
+  <Project Path="Sigma.Domain/Sigma.Domain.csproj" />
+  <Project Path="Sigma.Infrastructure/Sigma.Infrastructure.csproj" />
+  <Project Path="Sigma.Shared/Sigma.Shared.csproj" />
+</Solution>
