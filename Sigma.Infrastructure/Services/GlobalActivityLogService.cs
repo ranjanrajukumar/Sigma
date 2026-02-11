@@ -2,9 +2,6 @@
 using Sigma.Domain.Entities.Utilities;
 using Sigma.Infrastructure.Persistence.MongoDB;
 using Sigma.Infrastructure.Repositories.Utilities;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Sigma.Infrastructure.Services
 {

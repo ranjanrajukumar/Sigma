@@ -1,8 +1,5 @@
 ﻿using MongoDB.Driver;
 using Sigma.Domain.Entities.Utilities;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Sigma.Infrastructure.Repositories.Utilities
 {

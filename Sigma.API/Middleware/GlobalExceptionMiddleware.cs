@@ -1,14 +1,13 @@
 ﻿using Sigma.Application.Interfaces.Utilities;
 using Sigma.Domain.Entities.Utilities;
-using Sigma.Domain.ValueObjects;
 
 namespace Sigma.API.Middleware
 {
-    public class GlobalActivityLoggingMiddleware
+    public class GlobalExceptionMiddleware
     {
         private readonly RequestDelegate _next;
 
-        public GlobalActivityLoggingMiddleware(RequestDelegate next)
+        public GlobalExceptionMiddleware(RequestDelegate next)
         {
             _next = next;
         }
@@ -23,20 +22,22 @@ namespace Sigma.API.Middleware
             {
                 await logger.LogAsync(new GlobalActivityLog
                 {
-                    Level = ActivityLogLevel.Error,
-                    Service = "YourApp.API",
+                    Level = "Error",
+                    Service = "Sigma.API",
                     Source = context.Request.Path,
                     Message = ex.Message,
-                    Exception = ex,
-                    Request = new
-                    {
-                        context.Request.Method,
-                        context.Request.Path,
-                        context.Connection.RemoteIpAddress
-                    }
+                    Exception = ex.ToString(),
+                    Request = $"{context.Request.Method} {context.Request.Path}",
+                    TraceId = context.TraceIdentifier
                 });
 
-                throw;
+                context.Response.StatusCode = 500;
+
+                await context.Response.WriteAsJsonAsync(new
+                {
+                    Message = "Internal Server Error",
+                    TraceId = context.TraceIdentifier
+                });
             }
         }
     }
