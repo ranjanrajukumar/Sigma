@@ -6,6 +6,7 @@ namespace Sigma.Application.DTOs.Utilities
 {
     public class GlobalActivityLogDto
     {
+        public string Id { get; set; }
         public long LogNo { get; set; }
         public string Level { get; set; } = string.Empty;
         public string Service { get; set; } = string.Empty;

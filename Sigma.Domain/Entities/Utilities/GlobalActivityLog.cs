@@ -1,4 +1,6 @@
-﻿using System;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -6,6 +8,10 @@ namespace Sigma.Domain.Entities.Utilities
 {
     public class GlobalActivityLog
     {
+
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; }   // maps to _id
         public long LogNo { get; set; }
         public string Level { get; set; } = string.Empty;
         public string Service { get; set; } = string.Empty;
