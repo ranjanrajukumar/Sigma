@@ -15,6 +15,9 @@ var builder = WebApplication.CreateBuilder(args);
 // ---------------- Controllers ----------------
 builder.Services.AddControllers();
 
+// ---------------- DapperContext (MUST BE BEFORE Build) ----------------
+builder.Services.AddSingleton<DapperContext>();
+
 // ---------------- Infrastructure DI ----------------
 builder.Services.AddInfrastructure(builder.Configuration);
 
@@ -27,24 +30,25 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
             .GetRequiredService<IGlobalActivityLogService>();
 
         var errors = context.ModelState
-            .Where(x => x.Value.Errors.Count > 0)
+            .Where(x => x.Value?.Errors.Count > 0)
             .Select(x => new
             {
                 Field = x.Key,
-                Errors = x.Value.Errors.Select(e => e.ErrorMessage)
+                Errors = x.Value!.Errors.Select(e => e.ErrorMessage)
             });
 
         var errorJson = JsonSerializer.Serialize(errors);
 
-        logger.LogAsync(new GlobalActivityLog
+        // ⚠ NEVER use .Wait() in ASP.NET Core
+        _ = logger.LogAsync(new GlobalActivityLog
         {
             Level = "Warning",
             Service = "Sigma.API",
             Source = context.HttpContext.Request.Path,
             Message = "Validation Failed",
-            Request = errorJson,   // ✅ FIXED
+            Request = errorJson,
             TraceId = context.HttpContext.TraceIdentifier
-        }).Wait();
+        });
 
         return new BadRequestObjectResult(context.ModelState);
     };
@@ -82,7 +86,7 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// ---------------- Mongo Initialization (BEFORE MIDDLEWARE) ----------------
+// ---------------- Mongo Initialization ----------------
 using (var scope = app.Services.CreateScope())
 {
     var mongoContext = scope.ServiceProvider
@@ -91,12 +95,12 @@ using (var scope = app.Services.CreateScope())
     await mongoContext.InitializeAsync();
 }
 
-// ---------------- Middleware (ORDER MATTERS) ----------------
+// ---------------- Middleware ----------------
 
-// 1️⃣ Global Exception Middleware FIRST
+// 1️⃣ Global Exception FIRST
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
-// 2️⃣ Request Logger
+// 2️⃣ Request Logging
 app.UseMiddleware<RequestLoggingMiddleware>();
 
 app.UseSwagger();

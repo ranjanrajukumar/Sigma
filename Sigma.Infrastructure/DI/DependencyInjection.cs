@@ -3,13 +3,16 @@ using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 
 using Sigma.Application.Interfaces;
+using Sigma.Application.Interfaces.Common;
 using Sigma.Application.Interfaces.Services;
+using Sigma.Application.Interfaces.Services.Common;
 using Sigma.Application.Interfaces.Utilities;
 using Sigma.Application.UseCases.Utilities;
 
 using Sigma.Infrastructure.Persistence;
 using Sigma.Infrastructure.Persistence.MongoDB;
 using Sigma.Infrastructure.Repositories;
+using Sigma.Infrastructure.Repositories.Common;
 using Sigma.Infrastructure.Repositories.Utilities;
 using Sigma.Infrastructure.Security;
 using Sigma.Infrastructure.Services;
@@ -46,6 +49,9 @@ namespace Sigma.Infrastructure.DI
             services.AddScoped<GlobalActivityLogRepository>();
             services.AddScoped<IGlobalActivityLogService, GlobalActivityLogService>();
 
+            // Common Search
+            services.AddScoped<ICommonSearchRepository, CommonSearchRepository>();
+            services.AddScoped<ICommonSearchService, CommonSearchService>();
             return services;
         }
     }
