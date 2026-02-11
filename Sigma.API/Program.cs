@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using Sigma.API.Middleware;
 using Sigma.Infrastructure.DI;
 
 using System.Text;
@@ -12,6 +13,9 @@ builder.Services.AddControllers();
 
 // ---------------- Infrastructure DI ----------------
 builder.Services.AddInfrastructure(builder.Configuration);
+
+builder.Services.AddInfrastructure(builder.Configuration);
+
 
 
 // ---------------- JWT Authentication ----------------
@@ -47,11 +51,13 @@ builder.Services.AddSwaggerGen(c =>
 var app = builder.Build();
 
 // ---------------- Middleware ----------------
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
+app.UseMiddleware<GlobalActivityLoggingMiddleware>();
+
+//if (app.Environment.IsDevelopment())
+//{
+app.UseSwagger();
     app.UseSwaggerUI();
-}
+//}
 
 app.UseHttpsRedirection();
 app.UseAuthentication();

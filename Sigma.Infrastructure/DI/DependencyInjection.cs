@@ -1,14 +1,20 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Driver;
+
 using Sigma.Application.Interfaces;
 using Sigma.Application.Interfaces.Services;
+using Sigma.Application.Interfaces.Utilities;
 using Sigma.Application.UseCases.Utilities;
+
 using Sigma.Infrastructure.Persistence;
+using Sigma.Infrastructure.Persistence.MongoDB;
 using Sigma.Infrastructure.Repositories;
 using Sigma.Infrastructure.Repositories.Utilities;
 using Sigma.Infrastructure.Security;
+using Sigma.Infrastructure.Services;
 
-namespace Sigma.Infrastructure.DI   // ✅ FIXED
+namespace Sigma.Infrastructure.DI
 {
     public static class DependencyInjection
     {
@@ -24,14 +30,21 @@ namespace Sigma.Infrastructure.DI   // ✅ FIXED
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IMenuRepository, MenuRepository>();
 
-
             // Security
             services.AddScoped<IJwtTokenService, JwtTokenService>();
 
             // UseCases
             services.AddScoped<LoginUserUseCase>();
 
+            // MongoDB (NO Options, NO Configure)
+            services.AddSingleton<MongoDbContext>();
+            services.AddSingleton<IMongoDatabase>(sp =>
+                sp.GetRequiredService<MongoDbContext>().Database);
 
+            // Global Activity Log
+            services.AddSingleton<MongoSequenceService>();
+            services.AddScoped<GlobalActivityLogRepository>();
+            services.AddScoped<IGlobalActivityLogService, GlobalActivityLogService>();
 
             return services;
         }
