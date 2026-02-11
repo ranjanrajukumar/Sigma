@@ -50,65 +50,7 @@ namespace Sigma.Infrastructure.Persistence
             }
         }
 
-        //private async Task EnsureIndexesAsync()
-        //{
-        //    var collection = Database
-        //        .GetCollection<GlobalActivityLog>(LogCollectionName);
-
-        //    var existingIndexes = await collection
-        //        .Indexes
-        //        .ListAsync();
-
-        //    var indexList = await existingIndexes.ToListAsync();
-        //    var indexNames = indexList
-        //        .Select(i => i["name"].AsString)
-        //        .ToList();
-
-        //    var models = new List<CreateIndexModel<GlobalActivityLog>>();
-
-        //    // Unique LogNo
-        //    if (!indexNames.Contains("LogNo_1"))
-        //    {
-        //        models.Add(new CreateIndexModel<GlobalActivityLog>(
-        //            Builders<GlobalActivityLog>.IndexKeys.Ascending(x => x.LogNo),
-        //            new CreateIndexOptions { Unique = true, Name = "LogNo_1" }));
-        //    }
-
-        //    // Level index
-        //    if (!indexNames.Contains("Level_1"))
-        //    {
-        //        models.Add(new CreateIndexModel<GlobalActivityLog>(
-        //            Builders<GlobalActivityLog>.IndexKeys.Ascending(x => x.Level),
-        //            new CreateIndexOptions { Name = "Level_1" }));
-        //    }
-
-        //    // CreatedAt descending index
-        //    if (!indexNames.Contains("CreatedAt_-1"))
-        //    {
-        //        models.Add(new CreateIndexModel<GlobalActivityLog>(
-        //            Builders<GlobalActivityLog>.IndexKeys.Descending(x => x.CreatedAt),
-        //            new CreateIndexOptions { Name = "CreatedAt_-1" }));
-        //    }
-
-        //    // TTL index (30 days)
-        //    if (!indexNames.Contains("CreatedAt_TTL"))
-        //    {
-        //        models.Add(new CreateIndexModel<GlobalActivityLog>(
-        //            Builders<GlobalActivityLog>.IndexKeys.Ascending(x => x.CreatedAt),
-        //            new CreateIndexOptions
-        //            {
-        //                ExpireAfter = TimeSpan.FromDays(30),
-        //                Name = "CreatedAt_TTL"
-        //            }));
-        //    }
-
-        //    if (models.Count > 0)
-        //    {
-        //        await collection.Indexes.CreateManyAsync(models);
-        //    }
-        //}
-
-
+    
         private async Task EnsureIndexesAsync()
         {
             var collection = Database.GetCollection<GlobalActivityLog>(LogCollectionName);
