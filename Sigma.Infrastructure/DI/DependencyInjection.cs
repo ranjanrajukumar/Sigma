@@ -4,15 +4,19 @@ using MongoDB.Driver;
 
 using Sigma.Application.Interfaces;
 using Sigma.Application.Interfaces.Common;
+using Sigma.Application.Interfaces.Master;
 using Sigma.Application.Interfaces.Services;
 using Sigma.Application.Interfaces.Services.Common;
+using Sigma.Application.Interfaces.Services.Master;
 using Sigma.Application.Interfaces.Utilities;
+using Sigma.Application.Services.Master;
 using Sigma.Application.UseCases.Utilities;
 
 using Sigma.Infrastructure.Persistence;
 using Sigma.Infrastructure.Persistence.MongoDB;
 using Sigma.Infrastructure.Repositories;
 using Sigma.Infrastructure.Repositories.Common;
+using Sigma.Infrastructure.Repositories.Master;
 using Sigma.Infrastructure.Repositories.Utilities;
 using Sigma.Infrastructure.Security;
 using Sigma.Infrastructure.Services;
@@ -32,6 +36,13 @@ namespace Sigma.Infrastructure.DI
             services.AddScoped<IAuthUserRepository, AuthUserRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IMenuRepository, MenuRepository>();
+
+            services.AddScoped<IAcademicYearRepository, AcademicYearRepository>();
+            services.AddScoped<IMClassRepository, MClassRepository>();
+
+            // services 
+            services.AddScoped<IAcademicYearService, AcademicYearService>();
+            services.AddScoped<IMClassService, MClassService>();
 
             // Security
             services.AddScoped<IJwtTokenService, JwtTokenService>();
