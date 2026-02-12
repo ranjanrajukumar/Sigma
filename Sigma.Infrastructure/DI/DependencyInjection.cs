@@ -16,6 +16,7 @@ using Sigma.Infrastructure.Persistence;
 using Sigma.Infrastructure.Persistence.MongoDB;
 using Sigma.Infrastructure.Repositories;
 using Sigma.Infrastructure.Repositories.Common;
+using Sigma.Infrastructure.Repositories.Interfaces;
 using Sigma.Infrastructure.Repositories.Master;
 using Sigma.Infrastructure.Repositories.Utilities;
 using Sigma.Infrastructure.Security;
@@ -39,10 +40,15 @@ namespace Sigma.Infrastructure.DI
 
             services.AddScoped<IAcademicYearRepository, AcademicYearRepository>();
             services.AddScoped<IMClassRepository, MClassRepository>();
+            services.AddScoped<ISectionLookupRepository, SectionLookupRepository>();
+
 
             // services 
             services.AddScoped<IAcademicYearService, AcademicYearService>();
             services.AddScoped<IMClassService, MClassService>();
+            services.AddScoped<ISectionLookupService, SectionLookupService>();
+
+            
 
             // Security
             services.AddScoped<IJwtTokenService, JwtTokenService>();
