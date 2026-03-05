@@ -15,7 +15,18 @@ var builder = WebApplication.CreateBuilder(args);
 // ---------------- Controllers ----------------
 builder.Services.AddControllers();
 
-// ---------------- DapperContext (MUST BE BEFORE Build) ----------------
+// ---------------- CORS ----------------
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
+// ---------------- DapperContext ----------------
 builder.Services.AddSingleton<DapperContext>();
 
 // ---------------- Infrastructure DI ----------------
@@ -39,7 +50,6 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 
         var errorJson = JsonSerializer.Serialize(errors);
 
-        // ⚠ NEVER use .Wait() in ASP.NET Core
         _ = logger.LogAsync(new GlobalActivityLog
         {
             Level = "Warning",
@@ -97,16 +107,19 @@ using (var scope = app.Services.CreateScope())
 
 // ---------------- Middleware ----------------
 
-// 1️⃣ Global Exception FIRST
+// Global Exception
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
-// 2️⃣ Request Logging
+// Request Logging
 app.UseMiddleware<RequestLoggingMiddleware>();
 
 app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
+
+// ✅ Enable CORS
+app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();
