@@ -103,5 +103,141 @@ namespace Sigma.Infrastructure.Repositories.Master
             var rows = await conn.ExecuteAsync(sql, new { Id = id });
             return rows > 0;
         }
+
+        public async Task InsertTermsAsync(List<AcademicYearTerm> terms)
+        {
+            const string sql = @"INSERT INTO s_master.m_academic_year_term
+                            (academic_year_id,term_name,start_date,end_date,working_days,add_on_dt)
+                            VALUES
+                            (@AcademicYearId,@TermName,@StartDate,@EndDate,@WorkingDays,NOW())";
+
+            using var conn = _context.CreateConnection();
+
+            await conn.ExecuteAsync(sql, terms);
+        }
+
+        public async Task<AcademicYear?> GetAcademicYearWithTerms(long id)
+        {
+            const string sql = @"
+    SELECT 
+        ay.academic_year_id AS AcademicYearId,
+        ay.academic_year AS AcademicYearName,
+        ay.start_date AS StartDate,
+        ay.end_date AS EndDate,
+        ay.is_active AS IsActive,
+
+        t.term_id AS TermId,
+        t.term_name AS TermName,
+        t.start_date AS StartDate,
+        t.end_date AS EndDate,
+        t.working_days AS WorkingDays
+
+    FROM s_master.m_academic_year ay
+    LEFT JOIN s_master.m_academic_year_term t
+        ON ay.academic_year_id = t.academic_year_id
+    WHERE ay.academic_year_id = @Id
+    AND ay.del_status = false";
+
+            using var conn = _context.CreateConnection();
+
+            var lookup = new Dictionary<long, AcademicYear>();
+
+            var result = await conn.QueryAsync<AcademicYear, AcademicYearTerm, AcademicYear>(
+                sql,
+                (year, term) =>
+                {
+                    if (!lookup.TryGetValue(year.AcademicYearId, out var academicYear))
+                    {
+                        academicYear = year;
+                        academicYear.Terms = new List<AcademicYearTerm>();
+                        lookup.Add(academicYear.AcademicYearId, academicYear);
+                    }
+
+                    if (term != null)
+                        academicYear.Terms.Add(term);
+
+                    return academicYear;
+                },
+                new { Id = id },
+                splitOn: "TermId"
+            );
+
+            return lookup.Values.FirstOrDefault();
+        }
+        public async Task UpdateTermAsync(AcademicYearTerm term)
+        {
+            const string sql = @"UPDATE s_master.m_academic_year_term
+                         SET term_name=@TermName,
+                             start_date=@StartDate,
+                             end_date=@EndDate,
+                             working_days=@WorkingDays,
+                             edit_on_dt=NOW()
+                         WHERE term_id=@TermId";
+
+            using var conn = _context.CreateConnection();
+
+            await conn.ExecuteAsync(sql, term);
+        }
+
+        public async Task InsertTermAsync(AcademicYearTerm term)
+        {
+            const string sql = @"INSERT INTO s_master.m_academic_year_term
+                        (academic_year_id,term_name,start_date,end_date,working_days,add_on_dt)
+                        VALUES
+                        (@AcademicYearId,@TermName,@StartDate,@EndDate,@WorkingDays,NOW())";
+
+            using var conn = _context.CreateConnection();
+
+            await conn.ExecuteAsync(sql, term);
+        }
+
+        public async Task<IEnumerable<AcademicYear>> GetAllWithTermsAsync()
+        {
+            const string sql = @"
+    SELECT 
+        ay.academic_year_id AS AcademicYearId,
+        ay.academic_year AS AcademicYearName,
+        ay.start_date AS StartDate,
+        ay.end_date AS EndDate,
+        ay.is_active AS IsActive,
+
+        t.term_id AS TermId,
+        t.term_name AS TermName,
+        t.start_date AS StartDate,
+        t.end_date AS EndDate,
+        t.working_days AS WorkingDays
+
+    FROM s_master.m_academic_year ay
+    LEFT JOIN s_master.m_academic_year_term t
+        ON ay.academic_year_id = t.academic_year_id
+    WHERE ay.del_status = false
+    ORDER BY ay.academic_year_id DESC";
+
+            using var conn = _context.CreateConnection();
+
+            var dictionary = new Dictionary<long, AcademicYear>();
+
+            var result = await conn.QueryAsync<AcademicYear, AcademicYearTerm, AcademicYear>(
+                sql,
+                (year, term) =>
+                {
+                    if (!dictionary.TryGetValue(year.AcademicYearId, out var academicYear))
+                    {
+                        academicYear = year;
+                        academicYear.Terms = new List<AcademicYearTerm>();
+                        dictionary.Add(academicYear.AcademicYearId, academicYear);
+                    }
+
+                    if (term != null)
+                        academicYear.Terms.Add(term);
+
+                    return academicYear;
+                },
+                splitOn: "TermId"
+            );
+
+            return dictionary.Values;
+        }
+
     }
 }

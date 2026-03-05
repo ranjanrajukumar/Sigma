@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Sigma.Application.DTOs.Master;
 using Sigma.Application.Interfaces.Master;
 
@@ -16,9 +15,9 @@ namespace Sigma.API.Controllers.Master
             _service = service;
         }
 
-        // ===============================
-        // GET ALL
-        // ===============================
+        // ======================================
+        // GET ALL ACADEMIC YEARS
+        // ======================================
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -26,9 +25,9 @@ namespace Sigma.API.Controllers.Master
             return Ok(result);
         }
 
-        // ===============================
-        // GET BY ID
-        // ===============================
+        // ======================================
+        // GET ACADEMIC YEAR BY ID WITH TERMS
+        // ======================================
         [HttpGet("{id:long}")]
         public async Task<IActionResult> GetById(long id)
         {
@@ -40,9 +39,9 @@ namespace Sigma.API.Controllers.Master
             return Ok(result);
         }
 
-        // ===============================
-        // CREATE
-        // ===============================
+        // ======================================
+        // CREATE ACADEMIC YEAR + TERMS
+        // ======================================
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] AcademicYearCreateDto dto)
         {
@@ -51,12 +50,15 @@ namespace Sigma.API.Controllers.Master
 
             var result = await _service.CreateAsync(dto);
 
+            if (result.Contains("already exists"))
+                return BadRequest(new { message = result });
+
             return Ok(new { message = result });
         }
 
-        // ===============================
-        // UPDATE
-        // ===============================
+        // ======================================
+        // UPDATE ACADEMIC YEAR + TERMS
+        // ======================================
         [HttpPut]
         public async Task<IActionResult> Update([FromBody] AcademicYearUpdateDto dto)
         {
@@ -65,16 +67,22 @@ namespace Sigma.API.Controllers.Master
 
             var result = await _service.UpdateAsync(dto);
 
+            if (result.Contains("failed"))
+                return BadRequest(new { message = result });
+
             return Ok(new { message = result });
         }
 
-        // ===============================
-        // DELETE (Soft Delete)
-        // ===============================
+        // ======================================
+        // DELETE ACADEMIC YEAR
+        // ======================================
         [HttpDelete("{id:long}")]
         public async Task<IActionResult> Delete(long id)
         {
             var result = await _service.DeleteAsync(id);
+
+            if (result.Contains("failed"))
+                return BadRequest(new { message = result });
 
             return Ok(new { message = result });
         }

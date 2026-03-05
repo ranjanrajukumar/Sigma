@@ -18,5 +18,7 @@ namespace Sigma.Domain.Entities.Master
         public DateTime? EditOnDt { get; set; }
         public DateTime? DelOnDt { get; set; }
         public bool DelStatus { get; set; }
+
+        public List<AcademicYearTerm> Terms { get; set; } = new();
     }
 }

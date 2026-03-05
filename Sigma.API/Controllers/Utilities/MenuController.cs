@@ -22,5 +22,13 @@ namespace Sigma.API.Controllers.Utilities
             var menus = await _repository.GetMenuTreeAsync();
             return Ok(menus);
         }
+
+        // GET MENU LIST
+        [HttpPost]
+        public async Task<IActionResult> GetMenuList(int RoleID)
+        {
+            var menus = await _repository.GetMenuTreeAsync();
+            return Ok(menus);
+        }
     }
 }
