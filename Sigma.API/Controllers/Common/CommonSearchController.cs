@@ -10,7 +10,7 @@ namespace Sigma.API.Controllers.Common
     {
         private readonly ICommonSearchService _service;
 
-        public CommonSearchController(ICommonSearchService service)
+       public CommonSearchController(ICommonSearchService service)
         {
             _service = service;
         }

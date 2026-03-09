@@ -123,5 +123,32 @@ namespace Sigma.API.Controllers.Master
 
             return Ok("School Deleted Successfully");
         }
+
+        [HttpPut("{id}/logo")]
+        public async Task<IActionResult> UpdateLogo(long id, [FromForm] UpdateSchoolLogoDto dto)
+        {
+            if (dto.Logo == null || dto.Logo.Length == 0)
+                return BadRequest("Logo file is required");
+
+            using var memoryStream = new MemoryStream();
+            await dto.Logo.CopyToAsync(memoryStream);
+
+            var logoBytes = memoryStream.ToArray();
+            var logoName = dto.Logo.FileName;
+            var logoType = dto.Logo.ContentType;
+
+            var result = await _repository.UpdateLogoAsync(
+                id,
+                logoBytes,
+                logoName,
+                logoType,
+                dto.AuthLstEdt
+            );
+
+            if (!result)
+                return NotFound();
+
+            return Ok("Logo updated successfully");
+        }
     }
 }

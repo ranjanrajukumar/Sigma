@@ -35,7 +35,7 @@ namespace Sigma.Infrastructure.Repositories.Master
                         postal_code AS PostalCode,
                         is_active AS IsActive,
                         auth_add AS AuthAdd,
-                        auth_lst_edt AS AuthLstEdt,
+                        auth_lst_edit AS AuthLstEdt,
                         auth_del AS AuthDel,
                         add_on_dt AS AddOnDt,
                         edit_on_dt AS EditOnDt,
@@ -71,7 +71,7 @@ namespace Sigma.Infrastructure.Repositories.Master
                         postal_code AS PostalCode,
                         is_active AS IsActive,
                         auth_add AS AuthAdd,
-                        auth_lst_edt AS AuthLstEdt,
+                        auth_lst_edit AS AuthLstEdt,
                         auth_del AS AuthDel,
                         add_on_dt AS AddOnDt,
                         edit_on_dt AS EditOnDt,
@@ -151,7 +151,7 @@ namespace Sigma.Infrastructure.Repositories.Master
                             state = @State,
                             country = @Country,
                             postal_code = @PostalCode,
-                            auth_lst_edt = @AuthLstEdt,
+                            auth_lst_edit = @AuthLstEdt,
                             edit_on_dt = NOW()
                         WHERE school_id = @Id
                         AND del_status = false";
@@ -197,6 +197,33 @@ namespace Sigma.Infrastructure.Repositories.Master
             {
                 Id = id,
                 AuthDel = authDel
+            });
+
+            return rows > 0;
+        }
+
+
+        public async Task<bool> UpdateLogoAsync(long id, byte[] logo, string logoName, string logoType, string authLstEdt)
+        {
+            var sql = @"UPDATE s_master.m_school
+                SET
+                    logo = @Logo,
+                    logo_name = @LogoName,
+                    logo_type = @LogoType,
+                    auth_lst_edit = @AuthLstEdt,
+                    edit_on_dt = NOW()
+                WHERE school_id = @Id
+                AND del_status = false";
+
+            using var conn = _context.CreateConnection();
+
+            var rows = await conn.ExecuteAsync(sql, new
+            {
+                Id = id,
+                Logo = logo,
+                LogoName = logoName,
+                LogoType = logoType,
+                AuthLstEdt = authLstEdt
             });
 
             return rows > 0;
