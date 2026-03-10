@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Text;
 
 namespace Sigma.Domain.Entities.Master
@@ -11,6 +12,10 @@ namespace Sigma.Domain.Entities.Master
         public string? SubjectCode { get; set; }
         public bool? IsOptional { get; set; }
         public string SubjectType { get; set; }
+
+        public int MinMarks { get; set; }
+        public int MaxMarks { get; set; }
+        public int PassMarks { get; set; }
 
         public string? AuthAdd { get; set; }
         public string? AuthLstEdt { get; set; }

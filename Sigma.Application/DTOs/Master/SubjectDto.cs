@@ -11,5 +11,9 @@ namespace Sigma.Application.DTOs.Master
         public string? SubjectCode { get; set; }
         public bool? IsOptional { get; set; }
         public string SubjectType { get; set; }
+
+        public int MinMarks { get; set; }
+        public int MaxMarks { get; set; }
+        public int PassMarks { get; set; }
     }
 }
