@@ -46,6 +46,7 @@ namespace Sigma.Infrastructure.DI
             services.AddScoped<ISubjectMappingRepository, SubjectMappingRepository>();
             services.AddScoped<IMClassTeacherRepository, MClassTeacherRepository>();
             services.AddScoped<IEventTypeRepository, EventTypeRepository>();
+            services.AddScoped<IAcademicCalendarRepository, AcademicCalendarRepository>();
 
 
             // services 
