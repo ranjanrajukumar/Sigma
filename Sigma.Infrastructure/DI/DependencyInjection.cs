@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 
 using Sigma.Application.Interfaces;
+using Sigma.Application.Interfaces.Academics;
 using Sigma.Application.Interfaces.Common;
 using Sigma.Application.Interfaces.Master;
 using Sigma.Application.Interfaces.Services;
@@ -14,6 +15,7 @@ using Sigma.Application.UseCases.Utilities;
 using Sigma.Infrastructure.Persistence;
 using Sigma.Infrastructure.Persistence.MongoDB;
 using Sigma.Infrastructure.Repositories;
+using Sigma.Infrastructure.Repositories.Academics;
 using Sigma.Infrastructure.Repositories.Common;
 using Sigma.Infrastructure.Repositories.Interfaces;
 using Sigma.Infrastructure.Repositories.Master;
@@ -47,6 +49,7 @@ namespace Sigma.Infrastructure.DI
             services.AddScoped<IMClassTeacherRepository, MClassTeacherRepository>();
             services.AddScoped<IEventTypeRepository, EventTypeRepository>();
             services.AddScoped<IAcademicCalendarRepository, AcademicCalendarRepository>();
+            services.AddScoped<IEnquiryRepository, EnquiryRepository>();
 
 
             // services 
