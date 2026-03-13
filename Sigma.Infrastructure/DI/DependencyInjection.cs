@@ -8,6 +8,7 @@ using Sigma.Application.Interfaces.Common;
 using Sigma.Application.Interfaces.Master;
 using Sigma.Application.Interfaces.Services;
 using Sigma.Application.Interfaces.Services.Common;
+using Sigma.Application.Interfaces.Services.Master;
 using Sigma.Application.Interfaces.Utilities;
 using Sigma.Application.Services.Master;
 using Sigma.Application.UseCases.Utilities;
@@ -50,13 +51,17 @@ namespace Sigma.Infrastructure.DI
             services.AddScoped<IEventTypeRepository, EventTypeRepository>();
             services.AddScoped<IAcademicCalendarRepository, AcademicCalendarRepository>();
             services.AddScoped<IEnquiryRepository, EnquiryRepository>();
+            services.AddScoped<IStudentDocumentRepository, StudentDocumentRepository>();
 
+            
 
             // services 
             services.AddScoped<IAcademicYearService, AcademicYearService>();
             services.AddScoped<IMClassService, MClassService>();
             services.AddScoped<ISectionLookupService, SectionLookupService>();
             services.AddScoped<IClassSectionService, ClassSectionService>();
+
+            services.AddScoped<IStudentDocumentService, StudentDocumentService>();
 
 
             // Security
