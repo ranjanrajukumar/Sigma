@@ -31,17 +31,17 @@ namespace Sigma.Application.Services.Master
             if (string.IsNullOrWhiteSpace(dto.ClassName))
                 return "Class Name is required";
 
-            if (dto.ClassOrder <= 0)
-                return "Class Order must be greater than 0";
-
             var entity = new MClass
             {
                 ClassName = dto.ClassName,
+                ClassCode = dto.ClassCode,
                 ClassOrder = dto.ClassOrder,
-               
+                MaximumCapacity = dto.MaximumCapacity,
+                Description = dto.Description
             };
 
             await _repository.CreateAsync(entity);
+
             return "Class created successfully";
         }
 
@@ -54,11 +54,14 @@ namespace Sigma.Application.Services.Master
             {
                 ClassId = dto.ClassId,
                 ClassName = dto.ClassName,
-                ClassOrder = dto.ClassOrder
-                
+                ClassCode = dto.ClassCode,
+                ClassOrder = dto.ClassOrder,
+                MaximumCapacity = dto.MaximumCapacity,
+                Description = dto.Description
             };
 
             await _repository.UpdateAsync(entity);
+
             return "Class updated successfully";
         }
 
@@ -68,6 +71,7 @@ namespace Sigma.Application.Services.Master
                 return "Invalid Class Id";
 
             await _repository.DeleteAsync(id);
+
             return "Class deleted successfully";
         }
     }

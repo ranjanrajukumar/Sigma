@@ -7,6 +7,13 @@ namespace Sigma.Application.DTOs.Master
     public class CreateClassDto
     {
         public string ClassName { get; set; } = string.Empty;
+
+        public string? ClassCode { get; set; }
+
         public int ClassOrder { get; set; }
+
+        public int? MaximumCapacity { get; set; }
+
+        public string? Description { get; set; }
     }
 }

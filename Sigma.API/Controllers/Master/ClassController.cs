@@ -15,9 +15,6 @@ namespace Sigma.API.Controllers.Master
             _service = service;
         }
 
-        // =====================================
-        // GET ALL
-        // =====================================
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -25,9 +22,6 @@ namespace Sigma.API.Controllers.Master
             return Ok(result);
         }
 
-        // =====================================
-        // GET BY ID
-        // =====================================
         [HttpGet("{id:long}")]
         public async Task<IActionResult> GetById(long id)
         {
@@ -39,35 +33,20 @@ namespace Sigma.API.Controllers.Master
             return Ok(result);
         }
 
-        // =====================================
-        // CREATE
-        // =====================================
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateClassDto dto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             var result = await _service.CreateAsync(dto);
             return Ok(new { message = result });
         }
 
-        // =====================================
-        // UPDATE
-        // =====================================
         [HttpPut]
         public async Task<IActionResult> Update([FromBody] UpdateClassDto dto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             var result = await _service.UpdateAsync(dto);
             return Ok(new { message = result });
         }
 
-        // =====================================
-        // DELETE (Soft Delete)
-        // =====================================
         [HttpDelete("{id:long}")]
         public async Task<IActionResult> Delete(long id)
         {
