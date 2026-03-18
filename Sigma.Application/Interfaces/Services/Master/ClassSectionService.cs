@@ -13,31 +13,32 @@ namespace Sigma.Application.Services.Master
             _repository = repository;
         }
 
-        // 🔹 JOIN - Get All With Names
         public async Task<IEnumerable<ClassSectionResponseDto>> GetAllWithNamesAsync()
         {
             return await _repository.GetAllWithNamesAsync();
         }
 
-        // 🔹 JOIN - Get By Id With Names
-        public async Task<ClassSectionResponseDto?> GetByIdWithNamesAsync(long classSectionId)
+        public async Task<ClassSectionResponseDto?> GetByIdWithNamesAsync(long id)
         {
-            return await _repository.GetByIdWithNamesAsync(classSectionId);
+            return await _repository.GetByIdWithNamesAsync(id);
         }
 
-        // 🔹 Create
         public async Task<long> CreateAsync(ClassSectionCreateDto dto)
         {
             var exists = await _repository
                 .GetByClassAndSectionAsync(dto.ClassId, dto.SectionId);
 
-            if (exists != null)
-                throw new ApplicationException("Class and Section already mapped.");
+            if (exists != null && !exists.DelStatus)
+                throw new ApplicationException("This class and section is already mapped.");
 
             var entity = new ClassSection
             {
                 ClassId = dto.ClassId,
                 SectionId = dto.SectionId,
+                RoomNumber = dto.RoomNumber,
+                Floor = dto.Floor,
+                SectionCapacity = dto.SectionCapacity,
+                ClassTeacherId = dto.ClassTeacherId,
                 AuthAdd = dto.AuthAdd,
                 AddOnDt = DateTime.UtcNow,
                 DelStatus = false
@@ -46,37 +47,37 @@ namespace Sigma.Application.Services.Master
             return await _repository.AddAsync(entity);
         }
 
-        // 🔹 Update
         public async Task<bool> UpdateAsync(ClassSectionUpdateDto dto)
         {
-            var existing = await _repository.GetByIdAsync(dto.ClassSectionId);
+            var entity = new ClassSection
+            {
+                ClassSectionId = dto.ClassSectionId,
+                ClassId = dto.ClassId,
+                SectionId = dto.SectionId,
+                RoomNumber = dto.RoomNumber,
+                Floor = dto.Floor,
+                SectionCapacity = dto.SectionCapacity,
+                ClassTeacherId = dto.ClassTeacherId,
+                AuthLstEdt = dto.AuthLstEdt,
+                EditOnDt = DateTime.UtcNow
+            };
 
-            if (existing == null || existing.DelStatus)
-                throw new ApplicationException("Mapping not found.");
-
-            existing.ClassId = dto.ClassId;
-            existing.SectionId = dto.SectionId;
-            existing.AuthLstEdt = dto.AuthLstEdt;
-            existing.EditOnDt = DateTime.UtcNow;
-
-            await _repository.UpdateAsync(existing);
+            await _repository.UpdateAsync(entity);
 
             return true;
         }
 
-        // 🔹 Soft Delete
-        public async Task<bool> DeleteAsync(long classSectionId, string deletedBy)
+        public async Task<bool> DeleteAsync(long id, string deletedBy)
         {
-            var existing = await _repository.GetByIdAsync(classSectionId);
+            var entity = new ClassSection
+            {
+                ClassSectionId = id,
+                AuthDel = deletedBy,
+                DelOnDt = DateTime.UtcNow,
+                DelStatus = true
+            };
 
-            if (existing == null || existing.DelStatus)
-                throw new ApplicationException("Mapping not found.");
-
-            existing.DelStatus = true;
-            existing.AuthDel = deletedBy;
-            existing.DelOnDt = DateTime.UtcNow;
-
-            await _repository.SoftDeleteAsync(existing);
+            await _repository.SoftDeleteAsync(entity);
 
             return true;
         }
