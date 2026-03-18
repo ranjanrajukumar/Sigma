@@ -8,9 +8,9 @@ namespace Sigma.Infrastructure.Repositories.Interfaces
 
         Task<SectionLookup?> GetByIdAsync(long id);
 
-        Task<SectionLookup?> GetByNameAsync(string sectionName); // ✅ Required for Unique Validation
+        Task<SectionLookup?> GetByNameAsync(string sectionName);
 
-        Task<long> AddAsync(SectionLookup entity); // ✅ Return inserted Id
+        Task<long> AddAsync(SectionLookup entity);
 
         Task UpdateAsync(SectionLookup entity);
 
