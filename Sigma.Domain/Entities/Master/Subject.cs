@@ -13,6 +13,10 @@ namespace Sigma.Domain.Entities.Master
         public bool? IsOptional { get; set; }
         public string SubjectType { get; set; }
 
+        // ✅ NEW FIELDS
+        public string? Category { get; set; }
+        public string? Description { get; set; }
+
         public int MinMarks { get; set; }
         public int MaxMarks { get; set; }
         public int PassMarks { get; set; }

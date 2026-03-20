@@ -2,7 +2,6 @@
 using Sigma.Application.Interfaces.Master;
 using Sigma.Domain.Entities.Master;
 using Sigma.Infrastructure.Persistence;
-using System.Data;
 
 namespace Sigma.Infrastructure.Repositories.Master
 {
@@ -21,6 +20,8 @@ namespace Sigma.Infrastructure.Repositories.Master
             subject_code AS SubjectCode,
             is_optional AS IsOptional,
             subject_type AS SubjectType,
+            category AS Category,
+            description AS Description,
             min_marks AS MinMarks,
             max_marks AS MaxMarks,
             pass_marks AS PassMarks,
@@ -32,9 +33,10 @@ namespace Sigma.Infrastructure.Repositories.Master
             del_on_dt AS DelOnDt,
             del_status AS DelStatus";
 
+        // ✅ GET ALL
         public async Task<IEnumerable<Subject>> GetSubjects()
         {
-            string query = $@"
+            var query = $@"
                 SELECT {SubjectColumns}
                 FROM s_master.m_subject
                 WHERE del_status = false
@@ -44,9 +46,10 @@ namespace Sigma.Infrastructure.Repositories.Master
             return await connection.QueryAsync<Subject>(query);
         }
 
+        // ✅ GET BY ID
         public async Task<Subject?> GetSubjectById(long id)
         {
-            string query = $@"
+            var query = $@"
                 SELECT {SubjectColumns}
                 FROM s_master.m_subject
                 WHERE subject_id = @Id
@@ -56,15 +59,29 @@ namespace Sigma.Infrastructure.Repositories.Master
             return await connection.QueryFirstOrDefaultAsync<Subject>(query, new { Id = id });
         }
 
+        // ✅ CREATE (Duplicate Check Added)
         public async Task<long> CreateSubject(Subject subject)
         {
-            string query = @"
+            using var connection = _context.CreateConnection();
+
+            var exists = await connection.ExecuteScalarAsync<int>(
+                @"SELECT COUNT(1) 
+                  FROM s_master.m_subject 
+                  WHERE subject_code = @SubjectCode 
+                  AND del_status = false", subject);
+
+            if (exists > 0)
+                throw new Exception("Subject code already exists");
+
+            var query = @"
                 INSERT INTO s_master.m_subject
                 (
                     subject_name,
                     subject_code,
                     is_optional,
                     subject_type,
+                    category,
+                    description,
                     min_marks,
                     max_marks,
                     pass_marks,
@@ -77,6 +94,8 @@ namespace Sigma.Infrastructure.Repositories.Master
                     @SubjectCode,
                     @IsOptional,
                     @SubjectType,
+                    @Category,
+                    @Description,
                     @MinMarks,
                     @MaxMarks,
                     @PassMarks,
@@ -85,18 +104,32 @@ namespace Sigma.Infrastructure.Repositories.Master
                 )
                 RETURNING subject_id";
 
-            using var connection = _context.CreateConnection();
             return await connection.ExecuteScalarAsync<long>(query, subject);
         }
 
+        // ✅ UPDATE (Duplicate Check Added)
         public async Task<bool> UpdateSubject(Subject subject)
         {
-            string query = @"
+            using var connection = _context.CreateConnection();
+
+            var exists = await connection.ExecuteScalarAsync<int>(
+                @"SELECT COUNT(1) 
+                  FROM s_master.m_subject 
+                  WHERE subject_code = @SubjectCode 
+                  AND subject_id <> @SubjectId
+                  AND del_status = false", subject);
+
+            if (exists > 0)
+                throw new Exception("Subject code already exists");
+
+            var query = @"
                 UPDATE s_master.m_subject
                 SET subject_name = @SubjectName,
                     subject_code = @SubjectCode,
                     is_optional = @IsOptional,
                     subject_type = @SubjectType,
+                    category = @Category,
+                    description = @Description,
                     min_marks = @MinMarks,
                     max_marks = @MaxMarks,
                     pass_marks = @PassMarks,
@@ -105,15 +138,14 @@ namespace Sigma.Infrastructure.Repositories.Master
                 WHERE subject_id = @SubjectId
                 AND del_status = false";
 
-            using var connection = _context.CreateConnection();
             var result = await connection.ExecuteAsync(query, subject);
-
             return result > 0;
         }
 
+        // ✅ DELETE (Soft Delete)
         public async Task<bool> DeleteSubject(long id)
         {
-            string query = @"
+            var query = @"
                 UPDATE s_master.m_subject
                 SET del_status = true,
                     del_on_dt = NOW()

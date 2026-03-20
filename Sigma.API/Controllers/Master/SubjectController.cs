@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Sigma.Application.Interfaces.Master;
 using Sigma.Domain.Entities.Master;
 
@@ -27,28 +26,46 @@ namespace Sigma.API.Controllers.Master
         public async Task<IActionResult> GetSubject(long id)
         {
             var data = await _repository.GetSubjectById(id);
+
+            if (data == null)
+                return NotFound("Subject not found");
+
             return Ok(data);
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateSubject([FromBody] Subject subject)
         {
-            var id = await _repository.CreateSubject(subject);
-            return Ok(id);
+            try
+            {
+                var id = await _repository.CreateSubject(subject);
+                return Ok(new { message = "Created successfully", id });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPut]
         public async Task<IActionResult> UpdateSubject([FromBody] Subject subject)
         {
-            var result = await _repository.UpdateSubject(subject);
-            return Ok(result);
+            try
+            {
+                var result = await _repository.UpdateSubject(subject);
+                return Ok(new { message = "Updated successfully", result });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSubject(long id)
         {
             var result = await _repository.DeleteSubject(id);
-            return Ok(result);
+            return Ok(new { message = "Deleted successfully", result });
         }
     }
-}
+} 
