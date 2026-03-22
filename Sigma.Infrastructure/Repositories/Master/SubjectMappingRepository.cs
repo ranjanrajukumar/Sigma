@@ -1,8 +1,8 @@
 ﻿using Dapper;
+using Sigma.Application.DTOs.Master;
+using Sigma.Application.DTOs.Master.Sigma.Application.DTOs.Master;
 using Sigma.Application.Interfaces.Master;
-using Sigma.Domain.Entities.Master;
 using Sigma.Infrastructure.Persistence;
-using System.Data;
 
 namespace Sigma.Infrastructure.Repositories.Master
 {
@@ -15,55 +15,99 @@ namespace Sigma.Infrastructure.Repositories.Master
             _context = context;
         }
 
-        private const string SubjectMappingColumns = @"
-            subject_mapping_id AS SubjectMappingId,
-            academic_year_id AS AcademicYearId,
-            school_id AS SchoolId,
-            class_id AS ClassId,
-            section_id AS SectionId,
-            is_all_sections AS IsAllSections,
-            term_id AS TermId,
-            subject_id AS SubjectId,
-            periods_per_week AS PeriodsPerWeek,
-            subject_type AS SubjectType,
-            is_active AS IsActive,
-            auth_add AS AuthAdd,
-            auth_lst_edt AS AuthLstEdt,
-            auth_del AS AuthDel,
-            add_on_dt AS AddOnDt,
-            edit_on_dt AS EditOnDt,
-            del_on_dt AS DelOnDt,
-            del_status AS DelStatus
+        private readonly string BaseQuery = @"
+            SELECT  
+                sm.subject_mapping_id AS SubjectMappingId,
+
+                sm.academic_year_id AS AcademicYearId,
+                ay.academic_year AS AcademicYearName,
+
+                sm.school_id AS SchoolId,
+                sc.school_name AS SchoolName,
+
+                sm.class_id AS ClassId,
+                c.class_name AS ClassName,
+
+                sm.section_id AS SectionId,
+                sec.section_name AS SectionName,
+
+                sm.is_all_sections AS IsAllSections,
+
+                sm.term_id AS TermId,
+                t.term_name AS TermName,
+
+                sm.subject_id AS SubjectId,
+                sub.subject_name AS SubjectName,
+
+                sm.periods_per_week AS PeriodsPerWeek,
+                sm.subject_type AS SubjectType,
+                sm.is_active AS IsActive,
+
+                sm.auth_add AS AuthAdd,
+                sm.auth_lst_edt AS AuthLstEdt,
+                sm.auth_del AS AuthDel,
+                sm.add_on_dt AS AddOnDt,
+                sm.edit_on_dt AS EditOnDt,
+                sm.del_on_dt AS DelOnDt,
+                sm.del_status AS DelStatus
+
+            FROM s_master.m_subject_mapping sm
+
+            LEFT JOIN s_master.m_academic_year ay 
+                ON sm.academic_year_id = ay.academic_year_id
+
+            LEFT JOIN s_master.m_school sc 
+                ON sm.school_id = sc.school_id
+
+            LEFT JOIN s_master.m_class c 
+                ON sm.class_id = c.class_id
+
+            LEFT JOIN s_master.m_section_lookup sec 
+                ON sm.section_id = sec.section_id
+
+            LEFT JOIN s_master.m_subject sub 
+                ON sm.subject_id = sub.subject_id
+
+            LEFT JOIN s_master.m_academic_year_term t 
+                ON sm.term_id = t.term_id
+
+            WHERE sm.del_status = false
         ";
 
-        public async Task<IEnumerable<SubjectMapping>> GetAllAsync()
+        public async Task<IEnumerable<SubjectMappingResponseDto>> GetAllAsync()
         {
-            var sql = $@"
-                SELECT {SubjectMappingColumns}
-                FROM s_master.m_subject_mapping
-                WHERE del_status = false
-                ORDER BY subject_mapping_id";
+            var sql = BaseQuery + " ORDER BY sm.subject_mapping_id DESC";
 
             using var connection = _context.CreateConnection();
-
-            return await connection.QueryAsync<SubjectMapping>(sql);
+            return await connection.QueryAsync<SubjectMappingResponseDto>(sql);
         }
 
-        public async Task<SubjectMapping?> GetByIdAsync(long id)
+        public async Task<SubjectMappingResponseDto?> GetByIdAsync(long id)
         {
-            var sql = $@"
-                SELECT {SubjectMappingColumns}
-                FROM s_master.m_subject_mapping
-                WHERE subject_mapping_id = @Id
+            var sql = BaseQuery + " AND sm.subject_mapping_id = @Id";
+
+            using var connection = _context.CreateConnection();
+            return await connection.QueryFirstOrDefaultAsync<SubjectMappingResponseDto>(sql, new { Id = id });
+        }
+
+        public async Task<long> CreateAsync(SubjectMappingCreateDto dto)
+        {
+            using var connection = _context.CreateConnection();
+
+            var checkSql = @"
+                SELECT 1 FROM s_master.m_subject_mapping
+                WHERE academic_year_id = @AcademicYearId
+                AND class_id = @ClassId
+                AND section_id IS NOT DISTINCT FROM @SectionId
+                AND subject_id = @SubjectId
+                AND term_id = @TermId
                 AND del_status = false";
 
-            using var connection = _context.CreateConnection();
+            var exists = await connection.ExecuteScalarAsync<int?>(checkSql, dto);
 
-            return await connection.QueryFirstOrDefaultAsync<SubjectMapping>(sql, new { Id = id });
-        }
+            if (exists != null)
+                throw new Exception("Duplicate subject mapping not allowed");
 
-        public async Task<long> CreateAsync(SubjectMapping entity)
-        {
             var sql = @"
                 INSERT INTO s_master.m_subject_mapping
                 (
@@ -93,12 +137,10 @@ namespace Sigma.Infrastructure.Repositories.Master
                 )
                 RETURNING subject_mapping_id";
 
-            using var connection = _context.CreateConnection();
-
-            return await connection.ExecuteScalarAsync<long>(sql, entity);
+            return await connection.ExecuteScalarAsync<long>(sql, dto);
         }
 
-        public async Task<bool> UpdateAsync(SubjectMapping entity)
+        public async Task<bool> UpdateAsync(long id, SubjectMappingCreateDto dto)
         {
             var sql = @"
                 UPDATE s_master.m_subject_mapping
@@ -112,14 +154,16 @@ namespace Sigma.Infrastructure.Repositories.Master
                     subject_id = @SubjectId,
                     periods_per_week = @PeriodsPerWeek,
                     subject_type = @SubjectType,
-                    auth_lst_edt = @AuthLstEdt,
+                    auth_lst_edt = @AuthAdd,
                     edit_on_dt = CURRENT_TIMESTAMP
-                WHERE subject_mapping_id = @SubjectMappingId";
+                WHERE subject_mapping_id = @Id";
 
             using var connection = _context.CreateConnection();
 
-            var rows = await connection.ExecuteAsync(sql, entity);
+            var parameters = new DynamicParameters(dto);
+            parameters.Add("Id", id);
 
+            var rows = await connection.ExecuteAsync(sql, parameters);
             return rows > 0;
         }
 
@@ -136,7 +180,6 @@ namespace Sigma.Infrastructure.Repositories.Master
             using var connection = _context.CreateConnection();
 
             var rows = await connection.ExecuteAsync(sql, new { Id = id, DeletedBy = deletedBy });
-
             return rows > 0;
         }
     }
