@@ -1,15 +1,12 @@
-﻿using Sigma.Application.DTOs.Academics;
-using Sigma.Domain.Entities.Academics;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Sigma.Application.DTOs;
+using Sigma.Application.DTOs.Academics;
 
 namespace Sigma.Application.Interfaces.Academics
 {
     public interface IEnquiryRepository
     {
-        Task<IEnumerable<Enquiry>> GetAllAsync();
-        Task<Enquiry> GetByIdAsync(long id);
+        Task<IEnumerable<EnquiryResponseDto>> GetAllAsync();   // ✅ FIXED
+        Task<EnquiryResponseDto?> GetByIdAsync(long id);       // ✅ nullable (best practice)
         Task<long> CreateAsync(CreateEnquiryDto dto);
         Task<bool> UpdateAsync(UpdateEnquiryDto dto);
         Task<bool> DeleteAsync(long id, string authDel);

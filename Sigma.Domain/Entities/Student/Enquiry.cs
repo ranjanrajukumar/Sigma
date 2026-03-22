@@ -24,6 +24,7 @@ namespace Sigma.Domain.Entities.Academics
         public string Address { get; set; }
         public string City { get; set; }
         public long? DistrictId { get; set; }
+   
         public long? StateId { get; set; }
         public string Pincode { get; set; }
 
